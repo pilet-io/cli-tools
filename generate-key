@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+import sys
 from rsa import generate_key, encrypt, decrypt
 
-secret_key = generate_key("hey")
+seed = sys.argv[1]
+filename = sys.argv[2]
+secret_key = generate_key(seed)
 private_key = secret_key.exportKey("PEM")
 
-with open("priv_rsa", "wb") as priv_file:
+with open(filename, "wb") as priv_file:
   priv_file.write(private_key)
