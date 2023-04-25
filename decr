@@ -1,0 +1,4 @@
+#!/bin/bash
+
+openssl enc -base64 -d -aes-256-cbc -salt -pass pass:\$ENC_KEY -pbkdf2 -
+
