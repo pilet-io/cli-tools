@@ -7,4 +7,8 @@ pip install deterministic-rsa-keygen
 git clone https://github.com/pilet-io/cli-tools.git
 mv cli-tools ~/cli
 
-echo "export PATH=\$PATH:~/cli" >> ~/.profile
+cat <<EOF >> ~/.profile
+export PATH=$PATH:~/cli:~/cli/init
+EOF
+
+source ~/.profile

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cat <<EOF >> ~/.profile
+export ENC_KEY=$1
+EOF
+
+ssh-pair $1 id_rsa
