@@ -12,14 +12,15 @@ alias ai='ansible-inventory --graph'
 EOF
 
 if [ ! -d "/path/to/dir" ]; then
- git clone git@github.com:pilet-io/bash-ansible.git ~/ansi
- cat /root/ansi/encrypted/token.enc | decr >> ~/.profile
- cat <<EOF >> ~/.profile
- alias ansi='cd /root/ansi'
- export ANSIBLE_HOST_KEY_CHECKING=False
- alias ap='ansible-playbook'
- alias ai='ansible-inventory --graph'
- EOF
+git clone git@github.com:pilet-io/bash-ansible.git ~/ansi
+cat /root/ansi/encrypted/token.enc | decr >> ~/.profile
+
+cat <<EOF >> ~/.profile
+alias ansi='cd /root/ansi'
+export ANSIBLE_HOST_KEY_CHECKING=False
+alias ap='ansible-playbook'
+alias ai='ansible-inventory --graph'
+EOF
 fi
 
 
