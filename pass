@@ -1,7 +1,11 @@
 #!/bin/bash
 
 SEED="${1}-$ENC_KEY"
-B64=$(echo $SEED | sha256sum | cut -c 1-14 | base64 )
 
-echo "${B64}!"
-
+if [[ $OSTYPE == 'darwin'* ]]; then
+ B64=$(echo $SEED | shasum -a 256 | cut -c 1-14 | base64 )
+ echo "${B64}!"
+else
+ B64=$(echo $SEED | sha256sum | cut -c 1-14 | base64 )
+ echo "${B64}!"
+fi
