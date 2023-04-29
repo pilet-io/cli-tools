@@ -23,4 +23,5 @@ sudo mkdir /main
 sudo mkfs -t ext4 /dev/md0
 sudo mount /dev/md0 /main
 
+
 #zpool create -f main /dev/nvme0n1p4 /dev/nvme1n1p1
