@@ -1,0 +1,9 @@
+#!/bin/bash
+
+SEED="${1}-$ENC_KEY"
+
+if [[ $OSTYPE == 'darwin'* ]]; then
+ echo $SEED | shasum -a 256 | base64
+else
+ echo $SEED | sha256sum | base64
+fi
