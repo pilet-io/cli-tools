@@ -1,0 +1,52 @@
+#!/bin/bash
+
+if [[ $# -lt 2 ]]; then
+  usage
+fi
+
+COMMAND=$1; shift
+
+#VALID_ARGS=$(getopt -o abg:d: --long alpha,beta,gamma:,delta: -- "$@")
+
+echo "command = $COMMAND"
+
+
+vm_create() {
+SCOPE=$1; shift
+declare -A PARAMS='([cpu]="2" [mem]="2GB" [disk]="20GB")'
+
+while getopts ":c:m:d:" opt; do
+  case $opt in
+     c)
+       PARAMS[cpu]="$OPTARG"
+       echo "argument -c called with parameter $OPTARG"
+       ;;
+     m)
+       PARAMS[mem]=$OPTARG
+       echo "argument -m called with parameter $OPTARG"
+       ;;
+     d)
+       PARAMS[disk]=$OPTARG
+       echo "argument -d called with parameter $OPTARG"
+       ;;
+     *)
+       echo "invalid command: no parameter included with argument $OPTARG"
+       ;;
+  esac
+done
+echo "vm create $SCOPE"
+echo "cpu = ${PARAMS[cpu]}"
+echo "mem = ${PARAMS[mem]}"
+echo "disk = ${PARAMS[disk]}"
+
+}
+
+
+function usage {
+cat <<EOF
+  Usage:  vm command scope [ARGS]
+EOF
+exit 1
+}
+
+eval vm_${COMMAND} "$@"
