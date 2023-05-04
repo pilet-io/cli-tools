@@ -6,41 +6,35 @@ fi
 
 COMMAND=$1; shift
 
-#VALID_ARGS=$(getopt -o abg:d: --long alpha,beta,gamma:,delta: -- "$@")
-
-echo "command = $COMMAND"
+ARGS=$(getopt -o c:m:d: --long cpu:,mem:,disk: -- "$@")
+eval set -- ${ARGS}
 
 
 # -- VM CREATE
 
 vm_create() {
-
-SCOPE=$1; shift
+ARGS=$(getopt -o c:m:d: --long cpu:,mem:,disk: -- "$@"); eval set -- ${ARGS}
 declare -A PARAMS='([cpu]="2" [mem]="2GB" [disk]="20GB")'
 
-while getopts "-o :c:m:d: --long cpu:,mem:,disk:" opt; do
-  case $opt in
-     c)
-       PARAMS[cpu]="$OPTARG"
-       echo "argument -c called with parameter $OPTARG"
-       ;;
-     m)
-       PARAMS[mem]=$OPTARG
-       echo "argument -m called with parameter $OPTARG"
-       ;;
-     d)
-       PARAMS[disk]=$OPTARG
-       echo "argument -d called with parameter $OPTARG"
-       ;;
-     *)
-       echo "invalid command: no parameter included with argument $OPTARG"
-       ;;
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -c | --cpu)  PARAMS[cpu]=$2; shift 2 ;;
+    -m | --mem)  PARAMS[mem]=$2; shift 2 ;;
+    -d | --disk) PARAMS[disk]=$2; shift 2 ;;
+    -- ) VM=$2; shift 2 ;;
   esac
 done
-echo "vm create $SCOPE"
+
+echo "Creating vm $VM"
 echo "cpu = ${PARAMS[cpu]}"
 echo "mem = ${PARAMS[mem]}"
 echo "disk = ${PARAMS[disk]}"
+
+lxc init ubuntu:22.04 ${VM} --vm
+lxc config set ${VM} limits.cpu ${PARAMS[cpu]}
+lxc config set ${VM} limits.memory ${PARAMS[mem]}
+lxc config device override ${VM} root size=${PARAMS[disk]}
+lxc start ${VM}
 
 }
 
