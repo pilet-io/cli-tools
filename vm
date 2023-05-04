@@ -11,11 +11,14 @@ COMMAND=$1; shift
 echo "command = $COMMAND"
 
 
+# -- VM CREATE
+
 vm_create() {
+
 SCOPE=$1; shift
 declare -A PARAMS='([cpu]="2" [mem]="2GB" [disk]="20GB")'
 
-while getopts ":c:m:d:" opt; do
+while getopts "-o :c:m:d: --long cpu:,mem:,disk:" opt; do
   case $opt in
      c)
        PARAMS[cpu]="$OPTARG"
