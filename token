@@ -3,7 +3,7 @@
 SEED="${1}-$ENC_KEY"
 
 if [[ $OSTYPE == 'darwin'* ]]; then
- echo $SEED | shasum -a 256 | base64
+ echo $SEED | shasum -a 256 | cut -c 1-50 | base64
 else
- echo $SEED | sha256sum | base64
+ echo $SEED | sha256sum | cut -c 1-50 | base64
 fi
