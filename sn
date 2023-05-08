@@ -37,9 +37,12 @@ while [[ $# -gt 0 ]]; do
   else
     V=${1:2}
     VAR[$V]=$2
-    eval "export ${V^^}=${VAR[$V]}"
     shift 2
   fi
+done
+
+for key in ${!VAR[@]}; do
+  eval "export ${key^^}=${VAR[$key]}"
 done
 
 mc cat pi/snip/$SNIP | envsubst | bash
