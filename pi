@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SNIP=$1
+SNIP=${1}-${2}
 
 usage() {
   echo "Usage: sn $SNIP"
@@ -41,8 +41,13 @@ while [[ $# -gt 0 ]]; do
   fi
 done
 
+KNOWN_VARS=""
 for key in ${!VAR[@]}; do
-  eval "export ${key^^}=${VAR[$key]}"
+  VNAME=${key^^}
+  eval "export $VNAME=${VAR[$key]}"
+  KNOWN_VARS="$KNOWN_VARS $VNAME"
 done
 
-bash <(mc cat pi/snip/$SNIP | envsubst)
+bash <(mc cat pi/snip/$SNIP | envsubst "$KNOWN_VARS")
+
+#mc cat pi/snip/$SNIP | envsubst
