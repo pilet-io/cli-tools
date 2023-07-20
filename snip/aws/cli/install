@@ -1,0 +1,21 @@
+#!/bin/bash
+
+apt update
+apt install awscli
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+mv /tmp/eksctl /usr/local/bin
+
+# -- KUBECTL
+
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.17/2023-05-11/bin/linux/amd64/kubectl
+chmod +x kubectl
+mv kubectl /usr/local/bin
+
+# -- HELM
+
+wget https://get.helm.sh/helm-v3.8.2-linux-amd64.tar.gz
+tar -zxvf helm-v3.8.2-linux-amd64.tar.gz
+rm helm-v3.8.2-linux-amd64.tar.gz
+chmod +x linux-amd64/helm
+mv linux-amd64/helm /usr/local/bin
+rm -rf linux-amd64

@@ -1,0 +1,90 @@
+#!/bin/bash
+
+usage() {
+  echo "Usage: in [scope] [action] [subject]"
+  exit 1
+}
+
+SNIP=${1}/${3}/${2}
+SNIP_FILE=~/cli/snip/$SNIP
+
+if [ -f "SNIP_FILE" ]; then
+  echo "$SNIP_FILE not found"
+  usage
+fi
+
+shift 2
+
+usage() {
+  echo "Usage: sn $SNIP"
+  echo "Params:"
+  for key in ${!VAR[@]}; do
+    echo "  --$key"
+  done
+  exit 1
+}
+
+eval "declare -A VAR=($(cat $SNIP_FILE | grep '#> ' | cut -c 4-))"
+
+LONG="help"
+for key in ${!VAR[@]}; do
+  if [[ "${VAR[$key]}" == "_flag" ]]; then
+    LONG="$LONG,${key}"
+  else
+    LONG="$LONG,${key}:"
+  fi
+done
+
+ARGS=$(getopt --long $LONG -- "$@");
+code=$?
+if (( code > 0 )); then
+  usage
+fi
+
+eval set -- ${ARGS}
+
+while [[ $# -gt 0 ]]; do
+  if [[ "$1" == "--" ]]; then
+    i=1
+    while [[ $# -gt 0 ]]; do
+      eval "export P$i=$2"
+      ((i=i+1))
+      shift
+    done
+  else
+    V=${1:2}
+    if [[ "${VAR[$V]}" == "_flag" ]]; then
+      VAR[$V]=yes
+      shift
+    else
+      VAR[$V]=$2
+      shift 2
+    fi
+  fi
+done
+
+KNOWN_VARS=""
+for key in ${!VAR[@]}; do
+  VNAME=${key^^}
+  eval "export $VNAME=${VAR[$key]}"
+  KNOWN_VARS="$KNOWN_VARS $VNAME"
+done
+
+# check required parameters
+
+if [[ ! -z "$_PARAM" ]]; then
+  for (( i=1; i<=$_PARAM; i++ )); do
+    PARNUM="P$i"
+    if [[ -z ${!PARNUM} ]]; then
+      echo "Missing parameter ${PARNUM}"
+      exit 1
+    fi
+  done
+  PARNUM="P$((_PARAM+1))"
+  if [[ ! -z ${!PARNUM} ]]; then
+    echo "Unexpected parameter $PARNUM=${!PARNUM}"
+    exit 1
+  fi
+fi
+
+bash <(cat $SNIP_FILE | envsubst "$KNOWN_VARS")
