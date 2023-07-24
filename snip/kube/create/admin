@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#> [ns]=tools
+
+cat<<EOF | kubectl apply -n $NS -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: admin-init-script
+data:
+  init-script.sh: |
+    #!/bin/bash
+    apt update
+    apt install -y nano curl jq iputils-ping dnsutils
+    sleep 365d
+EOF
+
+
+kubectl create ns $NS
+cat <<EOF | kubectl apply -n $NS -f -
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: admin
+  labels:
+    app: admin
+
+spec:
+  containers:
+  - name: admin
+    image: ubuntu:latest
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+    - name: script-volume
+      mountPath: /script
+    command: ["/script/init-script.sh"]
+  volumes:
+  - name: script-volume
+    configMap:
+      name: admin-init-script
+      defaultMode: 0744
+  restartPolicy: Always
+EOF
+
+

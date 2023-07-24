@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#> [ns]=redis
+
+export REDIS_PASSWORD=$(kubectl get secret --namespace $NS redis -o jsonpath="{.data.redis-password}" | base64 -d)
+kubectl exec --tty -i redis-client --namespace NS -- REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h redis-master
+

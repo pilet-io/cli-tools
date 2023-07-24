@@ -1,5 +1,0 @@
-#!/bin/bash
-
-#> [cluster]=k8s-sandbox [version]=1.26
-
-aws eks update-cluster-version --region us-west-2 --name $CLUSTER --kubernetes-version $VERSION

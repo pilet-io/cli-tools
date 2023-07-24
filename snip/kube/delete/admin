@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#> [ns]=tools
+
+kubectl delete pod admin -n $NS

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#> [ns]=redis
+
+kubectl delete pod redis-client -n $NS
+helm uninstall redis -n $NS
+kubectl delete ns $NS

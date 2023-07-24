@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#> [ns]=tools
+
+kubectl exec --stdin --tty admin -n $NS -- /bin/bash

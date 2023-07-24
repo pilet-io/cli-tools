@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#> [ns]=confluent
+
+helm repo add confluentinc https://packages.confluent.io/helm
+helm repo update
+
+helm upgrade --install confluent-operator confluentinc/confluent-for-kubernetes --namespace $NS --create-namespace
+kubectl apply -n $NS -f https://raw.githubusercontent.com/confluentinc/confluent-kubernetes-examples/master/quickstart-deploy/confluent-platform.yaml
+kubectl apply -n $NS -f https://raw.githubusercontent.com/confluentinc/confluent-kubernetes-examples/master/quickstart-deploy/producer-app-data.yaml
+
+curl -O https://confluent-for-kubernetes.s3-us-west-1.amazonaws.com/confluent-for-kubernetes-2.6.1.tar.gz
+tar -xvf confluent-for-kubernetes-2.6.1.tar.gz
+tar -xvf kubectl-plugin/kubectl-confluent-linux-amd64.tar.gz -C /usr/local/bin
+
+rm -rf confluent-for-*

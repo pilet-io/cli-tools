@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#> [cluster]=$DEF_CLUSTER [nodes]=3 [type]=r5.large [version]=1.27 [region]=$DEF_REGION
+#> [cluster]=$DEF_CLUSTER [nodes]=3 [type]=r5.large [version]=1.25 [region]=$DEF_REGION
 
-FOLDER=~/.config/aws/k8/$CLUSTER
+FOLDER=~/.config/aws/kube/$CLUSTER
 mkdir -p $FOLDER
 CONFIG_FILE=$FOLDER/eks-config.yaml
 
@@ -38,4 +38,4 @@ eksctl create cluster -f $CONFIG_FILE
 echo "Install CSI driver"
 eksctl utils associate-iam-oidc-provider --region=$REGION --cluster=$CLUSTER --approve
 eksctl create iamserviceaccount --name ebs-csi-controller-sa --namespace kube-system --cluster $CLUSTER --role-name CSIDriverRole-$CLUSTER --role-only --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --approve
-eksctl create addon --name aws-ebs-csi-driver --cluster $CLUSTER --service-account-role-arn arn:aws:iam:204071211944:role/CSIDriverRole-$CLUSTER --force
+eksctl create addon --name aws-ebs-csi-driver --cluster $CLUSTER --service-account-role-arn arn:aws:iam::204071211944:role/CSIDriverRole-$CLUSTER --force
