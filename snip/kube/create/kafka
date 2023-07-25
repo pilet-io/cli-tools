@@ -1,16 +1,79 @@
 #!/bin/bash
 
-#> [ns]=confluent
+#> [ns]=redpanda
 
-helm repo add confluentinc https://packages.confluent.io/helm
+CLUSTER=$(cat ~/.config/cluster)
+SG_ID=`aws eks describe-cluster --name $CLUSTER | jq -r '.cluster.resourcesVpcConfig.clusterSecurityGroupId'`
+echo "Using security group $SG_ID"
+
+aws ec2 authorize-security-group-ingress \
+  --group-id $SG_ID \
+  --ip-permissions "[ \
+                      { \
+                        \"IpProtocol\": \"tcp\", \
+                        \"FromPort\": 30081, \
+                        \"ToPort\": 30081, \
+                        \"IpRanges\": [{\"CidrIp\": \"0.0.0.0/0\"}] \
+                      }, \
+                      { \
+                        \"IpProtocol\": \"tcp\", \
+                        \"FromPort\": 30082, \
+                        \"ToPort\": 30082, \
+                        \"IpRanges\": [{\"CidrIp\": \"0.0.0.0/0\"}] \
+                      }, \
+                      { \
+                        \"IpProtocol\": \"tcp\", \
+                        \"FromPort\": 31644, \
+                        \"ToPort\": 31644, \
+                        \"IpRanges\": [{\"CidrIp\": \"0.0.0.0/0\"}] \
+                      }, \
+                      { \
+                        \"IpProtocol\": \"tcp\", \
+                        \"FromPort\": 31092, \
+                        \"ToPort\": 31092, \
+                        \"IpRanges\": [{\"CidrIp\": \"0.0.0.0/0\"}] \
+                      } \
+                    ]"
+
+helm repo add jetstack https://charts.jetstack.io
 helm repo update
+helm install cert-manager jetstack/cert-manager \
+  --set installCRDs=true \
+  --namespace cert-manager  \
+  --create-namespace
 
-helm upgrade --install confluent-operator confluentinc/confluent-for-kubernetes --namespace $NS --create-namespace
-kubectl apply -n $NS -f https://raw.githubusercontent.com/confluentinc/confluent-kubernetes-examples/master/quickstart-deploy/confluent-platform.yaml
-kubectl apply -n $NS -f https://raw.githubusercontent.com/confluentinc/confluent-kubernetes-examples/master/quickstart-deploy/producer-app-data.yaml
+helm repo add redpanda https://charts.redpanda.com
+export DOMAIN=customredpandadomain.local && \
+helm install redpanda redpanda/redpanda --namespace $NS --create-namespace \
+  --set auth.sasl.enabled=true \
+  --set "auth.sasl.users[0].name=superuser" \
+  --set "auth.sasl.users[0].password=secretpassword" \
+  --set external.domain=${DOMAIN} --wait
 
-curl -O https://confluent-for-kubernetes.s3-us-west-1.amazonaws.com/confluent-for-kubernetes-2.6.1.tar.gz
-tar -xvf confluent-for-kubernetes-2.6.1.tar.gz
-tar -xvf kubectl-plugin/kubectl-confluent-linux-amd64.tar.gz -C /usr/local/bin
+kubectl get pod --namespace $NS  \
+-o=custom-columns=NODE:.spec.nodeName,NAME:.metadata.name -l \
+app.kubernetes.io/component=redpanda-statefulset
 
-rm -rf confluent-for-*
+exit 1
+
+kubectl --namespace <namespace> exec -ti redpanda-0 -c redpanda -- \
+rpk acl user create admin \
+-p Secret2023! \
+--admin-api-tls-enabled \
+--admin-api-tls-truststore /etc/tls/certs/default/ca.crt \
+-X admin.hosts=redpanda-0.redpanda.redpanda.svc.cluster.local.:9644,redpanda-1.redpanda.redpanda.svc.cluster.local.:9644,redpanda-2.redpanda.redpanda.svc.cluster.local.:9644
+
+kubectl exec --namespace $NS -c redpanda redpanda-0 -- \
+  rpk acl create --allow-principal User:redpanda-twitch-account \
+  --operation all \
+  --topic * \
+  --tls-enabled \
+  --tls-truststore /etc/tls/certs/default/ca.crt \
+  --user=superuser --password=secretpassword --sasl-mechanism SCRAM-SHA-512 \
+  -X brokers=redpanda-0.redpanda.redpanda.svc.cluster.local:9093
+
+mkdir -p ~/.config/$NS
+cat > ~/.config/$NS/rpk-topic <<EOF
+alias rpk-topic="kubectl --namespace $NS exec -i -t redpanda-0 -c redpanda -- rpk topic -X brokers=redpanda-0.redpanda.redpanda.svc.cluster.local.:9093,redpanda-1.redpanda.redpanda.svc.cluster.local.:9093,redpanda-2.redpanda.redpanda.svc.cluster.local.:9093 --tls-truststore /etc/tls/certs/default/ca.crt --tls-enabled --user=admin --password=Secret2023! --sasl-mechanism SCRAM-SHA-256"
+
+EOF

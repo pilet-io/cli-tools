@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#> [region]=$DEF_REGION
+
+aws eks list-clusters

@@ -1,0 +1,7 @@
+#!/bin/bash
+#> [ns]=default [managers]=3
+
+CLUSTER=$(cat ~/.config/cluster)
+echo "Scaling Flink cluster in EKS [$CLUSTER] to $MANAGERS managers. Using namespace [$NS]"
+
+kubectl scale --replicas=$MANAGERS -n $NS deployment flink-taskmanager

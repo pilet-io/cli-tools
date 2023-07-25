@@ -1,0 +1,4 @@
+#!/bin/bash
+#> [cluster]=$DEF_CLUSTER [nodes]=3
+
+eksctl scale nodegroup --name=ng-$CLUSTER --cluster=$CLUSTER --nodes=$NODES

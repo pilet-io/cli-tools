@@ -1,0 +1,31 @@
+#!/bin/bash
+#> [ns]=confluent
+
+kubectl create namespace $NS
+kubectl config set-context --current --namespace $NS
+helm repo add confluentinc https://packages.confluent.io/helm
+helm repo update
+helm upgrade --install confluent-operator confluentinc/confluent-for-kubernetes
+kubectl apply -f https://raw.githubusercontent.com/confluentinc/confluent-kubernetes-examples/master/quickstart-deploy/confluent-platform.yaml
+kubectl apply -f https://raw.githubusercontent.com/confluentinc/confluent-kubernetes-examples/master/quickstart-deploy/producer-app-data.yaml
+kubectl get pods
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: control-center-loadbalancer
+spec:
+  type: LoadBalancer
+  ports:
+  - name: webui
+    port: 80
+    targetPort: 9021
+  selector:
+    app: controlcenter
+    clusterId: confluent
+    confluent-platform: "true"
+    type: controlcenter
+EOF
+
+kubectl config set-context --current --namespace default

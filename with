@@ -1,15 +1,15 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: in [scope] [action] [subject]"
+  echo "Usage: with [scope] [action] [subject]"
   exit 1
 }
 
 SNIP=${1}/${2}/${3}
 SNIP_FILE=~/cli/snip/$SNIP
 
-if [ -f "SNIP_FILE" ]; then
-  echo "$SNIP_FILE not found"
+if [ ! -f "$SNIP_FILE" ]; then
+  echo "Command [$1 $2 $3] not found"
   usage
 fi
 
