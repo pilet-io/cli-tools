@@ -1,8 +1,8 @@
 #!/bin/bash
-#> [ns]=default
+#> [ns]=flink
 
 CLUSTER=$(cat ~/.config/cluster)
-echo "Deleting Flink cluster in EKS [$CLUSTER]. Using namespace [$NS]."
+echo "Deleting Flink cluster in [$CLUSTER]. Using namespace [$NS]."
 
 FOLDER=~/.config/$CLUSTER/$NS
 

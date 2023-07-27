@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#> [ns]=redpanda
+
+helm uninstall redpanda -n $NS --wait
+kubectl delete ns $NS

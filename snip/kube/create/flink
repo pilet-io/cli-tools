@@ -1,5 +1,5 @@
 #!/bin/bash
-#> [managers]=3 [ram]=16 [ns]=default
+#> [managers]=3 [ram]=16 [ns]=flink
 
 CLUSTER=$(cat ~/.config/cluster)
 kubectl create ns $NS
@@ -190,14 +190,15 @@ kind: Service
 metadata:
   name: flink-jobmanager
 spec:
-  type: LoadBalancer
+#  type: LoadBalancer
+  type: ClusterIP
   ports:
   - name: rpc
     port: 6123
   - name: blob-server
     port: 6124
   - name: webui
-    port: 80
+    port: 8081
     targetPort: 8081
   selector:
     app: flink
