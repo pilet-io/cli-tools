@@ -1,0 +1,33 @@
+
+#!/bin/bash
+
+#> [num]=3 [profile]=large [disk]=250 [cluster]=kube
+
+P1=$CLUSTER
+
+if [[ "$KVM" == "yes" ]]; then
+  OPTS="--kvm"
+fi
+
+OPTS="$OPTS --num $NUM --disk=$DISK --profile=$PROFILE --kvm"
+
+ALPHA=( {a..z} )
+pi vms create $OPTS $P1
+
+
+lxc exec $P1-a -- bash -c "curl -sfL https://get.k3s.io | sh -"
+TOKEN=$(lxc exec $P1-a -- bash -c "cat /var/lib/rancher/k3s/server/node-token")
+MAINIP=$(lxc exec $P1-a -- hostname -I | awk '{print $1}')
+
+for (( i=1; i<$NUM; i++ )); do
+  lxc exec $P1-${ALPHA[$i]} -- bash -c "curl -sfL https://get.k3s.io | K3S_URL=https://$MAINIP:6443 K3S_TOKEN=$TOKEN sh -"
+done
+
+lxc shell $P1-a << "EOFSSH"
+#!/bin/bash
+cat << EOF >> ~/.profile
+source <(kubectl completion bash)
+alias k=kubectl
+complete -o default -F __start_kubectl k
+EOF
+EOFSSH

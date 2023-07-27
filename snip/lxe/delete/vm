@@ -1,0 +1,6 @@
+#!/bin/bash
+#> [_param]=1
+
+echo "Deleting $P1"
+lxc stop $P1 --force
+lxc rm $P1

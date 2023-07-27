@@ -1,0 +1,29 @@
+#!/bin/bash
+#> [profile]=default [disk]=40 [_param]=1 [kvm]=_flag
+
+if [[ "$KVM" == "yes" ]]; then
+  OPTS="--vm"
+fi
+
+lxc init ubuntu:22.04 $P1 --profile $PROFILE $OPTS
+cat <<EOF | lxc config set $P1 cloud-init.user-data -
+#cloud-config
+package_update: true
+package_upgrade: true
+ssh_deletekeys: false
+runcmd:
+- [touch, /run/cloud.init.ran]
+write_files:
+- path: /root/.ssh/authorized_keys
+  owner: root:root
+  permissions: 0o600
+  defer: false
+  content: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTI+G/p7QjLzNMxDTrpnij0L1eb8kE+Ig+23qkCwSevoH4NuD3SZw4l2oSL3OIUZqrLbysofobiJ85q8Tyixseg4sSQ2dn0ueUygOMQXXW4dppw0KgfA97qTqV7dfWszMoktDuPGoZ6EMrHSGpfp3XOQkMQ6DFqtyBQHh9PgcEWJhuoq0enIWm2QHhyI7nIfU+aHVPeH7rdsCudbFmGx8AMtp/L/1uwMyI60QhFBFJww0A6tlL0I/VzezvGah6B0hD3GBYVtabjc5dsSrwsdENxEQu9NEw3bzq1oMhS/Sk4VrtZT+SFHJoMUH5ayV3BNi48gqWya5zV/VpGZqgoeAh
+EOF
+
+if [[ "$KVM" == "yes" ]]; then
+  lxc config device override $P1 root size=${DISK}GiB
+fi
+
+lxc start $P1
+pi cluster scan $P1

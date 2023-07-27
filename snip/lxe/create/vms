@@ -1,0 +1,23 @@
+
+#!/bin/bash
+
+#> [num]=3 [profile]=default [disk]=40 [_param]=1 [kvm]=_flag
+
+if [[ "$KVM" == "yes" ]]; then
+  OPTS="--kvm"
+fi
+
+OPTS="$OPTS --disk=$DISK --profile=$PROFILE"
+
+ALPHA=( {a..z} )
+
+for (( i=0; i<$NUM; i++ )); do
+  VMNAME="${P1}-${ALPHA[$i]}"
+  pi vm create $OPTS $VMNAME
+done
+
+if [[ "$KVM" == "yes" ]]; then
+  sleep 12s
+fi
+
+pi vm wait $VMNAME

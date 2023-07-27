@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#> [cluster]=kube
+
+mkdir -p ~/.kube
+lxc shell kube-a -- bash -c "cat /etc/rancher/k3s/k3s.yaml | sed \"s|127.0.0.1|$CLUSTER-a.lxd|g\"" > ~/.kube/config

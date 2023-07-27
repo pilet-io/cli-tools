@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#> [num]=3 [_param]=1
+
+ALPHA=( {a..z} )
+
+for (( i=0; i<$NUM; i++ )); do
+  VMNAME="${P1}-${ALPHA[$i]}"
+  pi vm delete $VMNAME
+done
