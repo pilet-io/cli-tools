@@ -1,0 +1,7 @@
+#!/bin/bash
+#> [cluster]=$DEF_CLUSTER [region]=$DEF_REGION
+
+eksctl utils associate-iam-oidc-provider --region=$REGION --cluster=$CLUSTER --approve
+eksctl create iamserviceaccount --name ebs-csi-controller-sa --namespace kube-system --cluster $CLUSTER --role-name CSIDriverRole-$CLUSTER --role-only --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --approve
+eksctl create addon --name aws-ebs-csi-driver --cluster $CLUSTER --service-account-role-arn arn:aws:iam::204071211944:role/CSIDriverRole-$CLUSTER --force
+#eksctl create addon --name aws-ebs-csi-driver --cluster $CLUSTER --service-account-role-arn arn:aws:iam::204071211944:role/eks-aws-ebs-csi-driver --force
