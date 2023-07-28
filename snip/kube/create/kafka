@@ -2,27 +2,18 @@
 
 #> [ns]=redpanda
 
-helm repo add jetstack https://charts.jetstack.io
-helm repo update
-helm upgrade --install cert-manager jetstack/cert-manager \
-  --set installCRDs=true \
-  --namespace cert-manager  \
-  --create-namespace
-
 helm repo add redpanda https://charts.redpanda.com
-export DOMAIN=customredpandadomain.local && \
 helm install redpanda redpanda/redpanda --namespace $NS --create-namespace \
-  --set auth.sasl.enabled=true \
-  --set "auth.sasl.users[0].name=superuser" \
-  --set "auth.sasl.users[0].password=secretpassword" \
-  --set external.domain=${DOMAIN} --wait
+  --set auth.sasl.enabled=false \
+  --set tls.enabled=false \
+  --set external.domain=pilet.local --wait
 
 kubectl get pod --namespace $NS
 
-kubectl -n redpanda exec -ti redpanda-0 -c redpanda -- rpk acl user create admin --new-password Secret2023! --mechanism SCRAM-SHA-512 --api-urls redpanda-0.redpanda.redpanda.svc.cluster.local.:9644,redpanda-1.redpanda.redpanda.svc.cluster.local.:9644,redpanda-2.redpanda.redpanda.svc.cluster.local.:9644 --admin-api-tls-enabled --admin-api-tls-truststore /etc/tls/certs/default/ca.crt
-kubectl -n $NS exec -ti redpanda-0 -c redpanda -- rpk acl create --allow-principal 'admin' --allow-host '*' --operation all --topic '*' --brokers redpanda-0.$NS.redpanda.svc.cluster.local.:9093,redpanda-1.$NS.redpanda.svc.cluster.local.:9093,redpanda-2.$NS.redpanda.svc.cluster.local.:9093 --tls-enabled --tls-truststore /etc/tls/certs/default/ca.crt --user superuser --password secretpassword --sasl-mechanism SCRAM-SHA-512
+#kubectl -n redpanda exec -ti redpanda-0 -c redpanda -- rpk acl user create admin --new-password Secret2023! --mechanism SCRAM-SHA-512 --api-urls redpanda-0.redpanda.redpanda.svc.cluster.local.:9644,redpanda-1.redpanda.redpanda.svc.cluster.local.:9644,redpanda-2.redpanda.redpanda.svc.cluster.local.:9644 --admin-api-tls-enabled --admin-api-tls-truststore /etc/tls/certs/default/ca.crt
+#kubectl -n $NS exec -ti redpanda-0 -c redpanda -- rpk acl create --allow-principal 'admin' --allow-host '*' --operation all --topic '*' --brokers redpanda-0.$NS.redpanda.svc.cluster.local.:9093,redpanda-1.$NS.redpanda.svc.cluster.local.:9093,redpanda-2.$NS.redpanda.svc.cluster.local.:9093 --tls-enabled --tls-truststore /etc/tls/certs/default/ca.crt --user superuser --password secretpassword --sasl-mechanism SCRAM-SHA-512
 
-mkdir -p ~/.config/$NS
-cat > ~/.config/$NS/rpk <<EOF
-alias rpk="kubectl -n $NS exec -ti redpanda-0 -c redpanda -- rpk --brokers redpanda-0.$NS.redpanda.svc.cluster.local.:9093,redpanda-1.$NS.redpanda.svc.cluster.local.:9093,redpanda-2.$NS.redpanda.svc.cluster.local.:9093 --tls-truststore /etc/tls/certs/default/ca.crt --user admin --password Secret2023! --sasl-mechanism SCRAM-SHA-512"
-EOF
+#mkdir -p ~/.config/$NS
+#cat > ~/.config/$NS/rpk <<EOF
+#alias rpk="kubectl -n $NS exec -ti redpanda-0 -c redpanda -- rpk --brokers redpanda-0.$NS.redpanda.svc.cluster.local.:9093,redpanda-1.$NS.redpanda.svc.cluster.local.:9093,redpanda-2.$NS.redpanda.svc.cluster.local.:9093 --tls-truststore /etc/tls/certs/default/ca.crt --user admin --password Secret2023! --sasl-mechanism SCRAM-SHA-512"
+#EOF
