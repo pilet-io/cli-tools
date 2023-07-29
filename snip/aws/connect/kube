@@ -5,3 +5,5 @@
 mkdir -p ~/.config
 echo $CLUSTER > ~/.config/cluster
 aws eks update-kubeconfig --region us-west-2 --name $CLUSTER
+sleep 2s
+kubectl -n kube-system rollout restart deploy/ebs-csi-controller

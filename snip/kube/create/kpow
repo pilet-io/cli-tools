@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#> [ns]=kpow
+
+helm repo add kpow https://charts.kpow.io
+helm repo update
+
+
