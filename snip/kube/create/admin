@@ -2,6 +2,7 @@
 
 #> [ns]=tools
 
+kubectl create ns $NS
 cat<<EOF | kubectl apply -n $NS -f -
 apiVersion: v1
 kind: ConfigMap
@@ -11,12 +12,15 @@ data:
   init-script.sh: |
     #!/bin/bash
     apt update
-    apt install -y nano curl jq iputils-ping dnsutils
+    apt install -y nano curl jq iputils-ping dnsutils openjdk-11-jre wget
+    wget -P /root https://archive.apache.org/dist/flink/flink-1.13.6/flink-1.13.6-bin-scala_2.11.tgz
+    cd /root
+    tar xzvf flink-1.13.6-bin-scala_2.11.tgz
+    rm flink-1.13.6-bin-scala_2.11.tgz
     sleep 365d
 EOF
 
 
-kubectl create ns $NS
 cat <<EOF | kubectl apply -n $NS -f -
 apiVersion: v1
 kind: Pod

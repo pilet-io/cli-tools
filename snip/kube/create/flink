@@ -1,5 +1,5 @@
 #!/bin/bash
-#> [managers]=3 [ram]=16 [ns]=flink
+#> [managers]=3 [ram]=24 [ns]=flink [version]=1.13
 
 CLUSTER=$(cat ~/.config/cluster)
 kubectl create ns $NS
@@ -17,15 +17,15 @@ metadata:
 data:
   flink-conf.yaml: |+
     jobmanager.rpc.address: flink-jobmanager
-    taskmanager.numberOfTaskSlots: 24
+    taskmanager.numberOfTaskSlots: 16
     blob.server.port: 6124
     jobmanager.rpc.port: 6123
     taskmanager.rpc.port: 6122
     queryable-state.proxy.ports: 6125
-    jobmanager.memory.process.size: 2g
+    jobmanager.memory.process.size: 24g
     taskmanager.memory.process.size: ${RAM}g
-    taskmanager.memory.managed.fraction: 0.25
-    parallelism.default: 2
+    taskmanager.memory.managed.fraction: 0.4
+    parallelism.default: 8
   log4j-console.properties: |+
     # This affects logging for both user code and Flink
     rootLogger.level = INFO
@@ -97,7 +97,7 @@ spec:
     spec:
       containers:
       - name: jobmanager
-        image: apache/flink:latest
+        image: apache/flink:${VERSION}-java11
         args: ["jobmanager"]
         ports:
         - containerPort: 6123
@@ -151,7 +151,7 @@ spec:
     spec:
       containers:
       - name: taskmanager
-        image: apache/flink:latest
+        image: apache/flink:${VERSION}-java11
         args: ["taskmanager"]
         ports:
         - containerPort: 6122
@@ -190,15 +190,15 @@ kind: Service
 metadata:
   name: flink-jobmanager
 spec:
-#  type: LoadBalancer
-  type: ClusterIP
+  type: LoadBalancer
+#  type: ClusterIP
   ports:
   - name: rpc
     port: 6123
   - name: blob-server
     port: 6124
   - name: webui
-    port: 8081
+    port: 80
     targetPort: 8081
   selector:
     app: flink

@@ -18,15 +18,14 @@ metadata:
 vpc:
   id: "vpc-0688ce5da7a4dab87"
   securityGroup: "sg-0f341ff3ee5742169"
-  #securityGroup: sg-0babea73aa46d69a8
   subnets:
     public:
       sub-1:
-        id: subnet-0ca0520196b8ec79d
-      sub-2:
-        id: subnet-006813cdfc04d57b2
-      sub-3:
         id: subnet-00dfb5d4eb57622c2
+      sub-2:
+        id: subnet-0ca0520196b8ec79d
+      sub-3:
+        id: subnet-006813cdfc04d57b2
       sub-4:
         id: subnet-043aa521e5d151dcc
 
