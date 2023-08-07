@@ -1,12 +1,13 @@
 #!/bin/bash
 
-#> [ns]=redpanda
+#> [ns]=redpanda [storage]=40Gi
 
 helm repo add redpanda https://charts.redpanda.com
 helm install redpanda redpanda/redpanda --namespace $NS --create-namespace \
   --set auth.sasl.enabled=false \
   --set tls.enabled=false \
-  --set external.domain=pilet.local --wait
+  --set storage.persistentVolume.size=$STORAGE \
+  --set external.enabled=false --wait
 
 kubectl get pod --namespace $NS
 
