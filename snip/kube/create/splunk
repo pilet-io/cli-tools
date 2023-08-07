@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#> [ns]=splunk
+
+helm repo add splunk-otel-collector-chart https://signalfx.github.io/splunk-otel-collector-chart
+helm install my-splunk-otel-collector --namespace $NS --create-namespace \
+ --set="splunkObservability.realm=us1,splunkObservability.accessToken=xxxxxx,clusterName=eks-sandbox" \
+ splunk-otel-collector-chart/splunk-otel-collector
